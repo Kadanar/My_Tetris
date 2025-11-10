@@ -14,12 +14,24 @@ private:
 
 public:
     Tetromino(TetrominoType tetrominoType = TetrominoType::I);
-
+        
     void rotate();
     void moveLeft();
     void moveRight();
     void moveDown();
-
+    /*
+    удалить комит нахуй потом
+     void rotate();
+    void moveLeft();
+    void moveRight();
+    void moveDown(); void rotate();
+    void moveLeft();
+    void moveRight();
+    void moveDown(); void rotate();
+    void moveLeft();
+    void moveRight();
+    void moveDown();
+    */
     const std::vector<std::vector<bool>>& getShape() const { return shape; }
     int getX() const { return x; }
     int getY() const { return y; }
