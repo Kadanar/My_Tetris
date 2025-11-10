@@ -1,32 +1,8 @@
 #pragma once
 #include "game/GameBoard.h"
-
-#ifndef APIENTRY
-#ifdef _WIN32
-#define APIENTRY __stdcall
-#else
-#define APIENTRY
-#endif
-#endif
-
-#define GLFW_INCLUDE_NONE
+#include "menu/MenuSystem.h"
 #include <GLFW/glfw3.h>
-
-#ifdef _WIN32
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-#include <Windows.h>
-#endif
-
-#ifdef _WIN32
-#include <GL/gl.h>
-#else
-#include <OpenGL/gl.h>
-#endif
+#include <string>
 
 class Renderer {
 private:
@@ -34,14 +10,9 @@ private:
     int windowWidth;
     int windowHeight;
 
+    // Input states
     bool leftPressed, rightPressed, downPressed, upPressed;
-    bool aPressed, dPressed, sPressed, wPressed, qPressed, spacePressed;
-
-    void drawBlock(float x, float y, int color);
-    void drawText(float x, float y, const char* text);
-    void drawNextPiece(const Tetromino& piece, float startX, float startY);
-    void drawDigit(float x, float y, int digit);
-    void drawString(float x, float y, const std::string& str);
+    bool aPressed, dPressed, sPressed, wPressed, qPressed, ePressed, spacePressed;
 
 public:
     Renderer();
@@ -50,8 +21,25 @@ public:
     bool initialize();
     void shutdown();
     void render(const GameBoard& board);
+
+    // Новые методы для меню
+    void renderMenu(const MenuSystem& menu);
+    void renderGameOverMenu(const MenuSystem& menu);
+
     bool shouldClose();
     void processInput(GameBoard& board);
 
+    // Новый метод для доступа к окну
     GLFWwindow* getWindow() const { return window; }
+
+private:
+    void drawBlock(float x, float y, int color);
+    void drawChar(float x, float y, char c);
+    void drawText(float x, float y, const std::string& text);
+    void drawNextPiece(const Tetromino& piece, float startX, float startY);
+
+    // Новые приватные методы для меню
+    void drawMenuItem(const MenuItem& item);
+    void drawControlsScreen();
+    void drawHighscoresScreen();
 };

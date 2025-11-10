@@ -18,6 +18,7 @@ private:
     double animationTimer;
     double gameTimer;
     bool fastDrop;
+    double timeSinceLastDrop;
 
 public:
     GameBoard();
@@ -37,7 +38,7 @@ public:
 
     bool isGameOver() const { return gameOver; }
     bool isGamePaused() const { return gamePaused; }
-    void togglePause();
+    void togglePause() { gamePaused = !gamePaused; }
     int getScore() const { return score; }
     const std::vector<std::vector<int>>& getBoard() const { return board; }
     const Tetromino& getCurrentPiece() const { return currentPiece; }
@@ -49,4 +50,5 @@ public:
     double getGameTime() const { return gameTimer; }
     void setFastDrop(bool fast) { fastDrop = fast; }
     std::string getFormattedTime() const;
+    void hardDrop();
 };

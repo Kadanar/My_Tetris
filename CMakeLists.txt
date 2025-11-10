@@ -4,62 +4,60 @@ project(My_Tetris)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Настройки для Visual Studio
+# Compiler settings
 if(MSVC)
-    # Отключаем предупреждения о конфликтах библиотек
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /EHsc /MP")
-    
-    # Настройки для отладки
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Zi /Od")
-    set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /DEBUG")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /EHsc")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 endif()
 
-# Путь к GLFW
+# GLFW path
 set(GLFW_DIR "${CMAKE_SOURCE_DIR}/libraries/glfw")
 
-# Проверяем существование GLFW
+# Check GLFW exists
 if(NOT EXISTS "${GLFW_DIR}/include/GLFW/glfw3.h")
     message(FATAL_ERROR "GLFW not found at: ${GLFW_DIR}")
 endif()
 
-include_directories(${GLFW_DIR}/include)
+# Include directories
+include_directories(include ${GLFW_DIR}/include)
 
-# Явно перечисляем все исходные файлы
+# Source files
 set(SOURCES
     src/main.cpp
-    src/game/Tetromino.cpp
-    src/game/GameBoard.cpp
     src/graphics/Renderer.cpp
+    src/game/GameBoard.cpp
+    src/game/Tetromino.cpp
+    src/audio/AudioManager.cpp
+    src/menu/MenuSystem.cpp
 )
 
-# Включаем директории
-include_directories(include)
-
-# Создаем исполняемый файл
+# Create executable
 add_executable(My_Tetris ${SOURCES})
 
-# Подключаем библиотеки
-target_link_libraries(My_Tetris 
-    "${GLFW_DIR}/lib/glfw3.lib"
-    opengl32.lib
-    gdi32.lib
-)
+# Copy assets
+file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
 
-# Настройки для отладки
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_compile_definitions(My_Tetris PRIVATE DEBUG=1)
-endif()
-
-# Копируем DLL
-if(EXISTS "${GLFW_DIR}/glfw3.dll")
-    add_custom_command(TARGET My_Tetris POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-        "${GLFW_DIR}/glfw3.dll"
-        "$<TARGET_FILE_DIR:My_Tetris>"
-        COMMENT "Copying GLFW DLL..."
+# Platform-specific linking
+if(WIN32)
+    target_link_libraries(My_Tetris 
+        "${GLFW_DIR}/lib/glfw3.lib"
+        opengl32.lib
+        gdi32.lib
+        winmm.lib
     )
+    
+    # Copy DLL
+    if(EXISTS "${GLFW_DIR}/glfw3.dll")
+        add_custom_command(TARGET My_Tetris POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            "${GLFW_DIR}/glfw3.dll"
+            "$<TARGET_FILE_DIR:My_Tetris>"
+        )
+    endif()
+else()
+    find_package(OpenGL REQUIRED)
+    target_link_libraries(My_Tetris OpenGL::GL ${GLFW_DIR}/lib/libglfw3.a)
 endif()
-
-# Сообщения для отладки
-message(STATUS "Source files: ${SOURCES}")
-message(STATUS "GLFW path: ${GLFW_DIR}")

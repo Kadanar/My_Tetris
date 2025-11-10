@@ -7,6 +7,7 @@ Tetromino::Tetromino(TetrominoType tetrominoType) : type(tetrominoType), x(3), y
     case TetrominoType::I:
         shape = { {1, 1, 1, 1} };
         color = 1;
+        x = 3; // Center I piece
         break;
     case TetrominoType::O:
         shape = { {1, 1}, {1, 1} };
@@ -33,12 +34,6 @@ Tetromino::Tetromino(TetrominoType tetrominoType) : type(tetrominoType), x(3), y
         color = 7;
         break;
     }
-
-}
-
-void Tetromino::setPosition(int newX, int newY) {
-    x = newX;
-    y = newY;
 }
 
 void Tetromino::rotate() {

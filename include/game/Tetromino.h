@@ -26,5 +26,7 @@ public:
     TetrominoType getType() const { return type; }
     int getColor() const { return color; }
 
+    void setPosition(int newX, int newY) { x = newX; y = newY; }
+
     static Tetromino getRandomTetromino();
 };
