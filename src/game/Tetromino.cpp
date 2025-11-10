@@ -33,6 +33,12 @@ Tetromino::Tetromino(TetrominoType tetrominoType) : type(tetrominoType), x(3), y
         color = 7;
         break;
     }
+
+}
+
+void Tetromino::setPosition(int newX, int newY) {
+    x = newX;
+    y = newY;
 }
 
 void Tetromino::rotate() {
