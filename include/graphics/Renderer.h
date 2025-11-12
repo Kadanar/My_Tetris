@@ -22,14 +22,14 @@ public:
     void shutdown();
     void render(const GameBoard& board);
 
-    // Новые методы для меню
+    // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
     void renderMenu(const MenuSystem& menu);
     void renderGameOverMenu(const MenuSystem& menu);
 
     bool shouldClose();
     void processInput(GameBoard& board);
 
-    // Новый метод для доступа к окну
+    // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ
     GLFWwindow* getWindow() const { return window; }
 
 private:
@@ -38,8 +38,9 @@ private:
     void drawText(float x, float y, const std::string& text);
     void drawNextPiece(const Tetromino& piece, float startX, float startY);
 
-    // Новые приватные методы для меню
+    // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
     void drawMenuItem(const MenuItem& item);
     void drawControlsScreen();
-    void drawHighscoresScreen();
+    void drawHighscoresScreen(const MenuSystem& menu);
+    void drawNameInputScreen(const MenuSystem& menu);
 };

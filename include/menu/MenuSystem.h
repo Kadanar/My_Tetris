@@ -8,6 +8,7 @@ enum class MenuState {
     MAIN_MENU,
     CONTROLS,
     HIGHSCORES,
+    NAME_INPUT,
     IN_GAME,
     PAUSE_MENU,
     GAME_OVER_MENU
@@ -33,6 +34,9 @@ private:
     int selectedGameOverMenuItem;
     int finalScore;
     std::string finalTime;
+    std::string currentPlayerName;
+    std::string nameInputBuffer;
+    std::vector<std::pair<std::string, int>> highscores;
 
 public:
     MenuSystem();
@@ -40,17 +44,18 @@ public:
     void initialize();
     void update();
     void handleKeyInput(int key);
+    void handleCharInput(unsigned int codepoint);
     void selectMenuItem();
     void moveSelectionUp();
     void moveSelectionDown();
     void setState(MenuState newState);
 
-    // Новые методы
+    // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
     void setGameOverInfo(int score, const std::string& time);
     void createGameOverMenu();
     void renderMenu() const;
 
-    // Геттеры для новых данных
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
     MenuState getState() const { return currentState; }
     const std::vector<MenuItem>& getMainMenuItems() const { return mainMenuItems; }
     const std::vector<MenuItem>& getPauseMenuItems() const { return pauseMenuItems; }
@@ -62,6 +67,12 @@ public:
     int getSelectedGameOverMenuItem() const { return selectedGameOverMenuItem; }
     int getFinalScore() const { return finalScore; }
     const std::string& getFinalTime() const { return finalTime; }
+    const std::string& getCurrentPlayerName() const { return currentPlayerName; }
+    const std::string& getNameInputBuffer() const { return nameInputBuffer; }
+    const std::vector<std::pair<std::string, int>>& getHighscores() const { return highscores; }
+    void setHighscores(const std::vector<std::pair<std::string, int>>& hs) { highscores = hs; }
+    void confirmNameInput() { currentPlayerName = nameInputBuffer; }
+    void resetNameInput() { nameInputBuffer.clear(); }
 
 private:
     void createMainMenu();

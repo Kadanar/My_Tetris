@@ -2,6 +2,13 @@
 #include <iostream>
 #include <functional>
 
+namespace {
+    constexpr float BoardWidth = 12.0f;
+    constexpr float BoardHeight = 22.0f;
+    constexpr float PanelX0 = 12.5f;
+    constexpr float PanelX1 = 17.5f;
+}
+
 Renderer::Renderer() : window(nullptr), windowWidth(800), windowHeight(900),
 leftPressed(false), rightPressed(false), downPressed(false), upPressed(false),
 aPressed(false), dPressed(false), sPressed(false), wPressed(false),
@@ -42,7 +49,6 @@ void Renderer::shutdown() {
 }
 
 void Renderer::drawBlock(float x, float y, int color) {
-    // Color mapping
     switch (color) {
     case 1: glColor3f(0.0f, 1.0f, 1.0f); break; // Cyan - I
     case 2: glColor3f(1.0f, 1.0f, 0.0f); break; // Yellow - O
@@ -55,7 +61,6 @@ void Renderer::drawBlock(float x, float y, int color) {
     default: glColor3f(0.7f, 0.7f, 0.7f); break; // Gray
     }
 
-    // Draw block
     glBegin(GL_QUADS);
     glVertex2f(x, y);
     glVertex2f(x + 1.0f, y);
@@ -63,7 +68,6 @@ void Renderer::drawBlock(float x, float y, int color) {
     glVertex2f(x, y + 1.0f);
     glEnd();
 
-    // Draw border
     glColor3f(0.2f, 0.2f, 0.2f);
     glLineWidth(1.0f);
     glBegin(GL_LINE_LOOP);
@@ -277,8 +281,8 @@ void Renderer::drawNextPiece(const Tetromino& piece, float startX, float startY)
     const auto& shape = piece.getShape();
     float blockSize = 0.8f;
 
-    float width = shape[0].size() * blockSize;
-    float height = shape.size() * blockSize;
+    float width = static_cast<float>(shape[0].size()) * blockSize;
+    float height = static_cast<float>(shape.size()) * blockSize;
 
     float offsetX = startX - width * 0.5f;
     float offsetY = startY - height * 0.5f;
@@ -312,45 +316,48 @@ void Renderer::render(const GameBoard& board) {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
+    // Рамка поля
     glColor3f(0.5f, 0.5f, 0.5f);
-    glLineWidth(3.0f); 
+    glLineWidth(3.0f);
     glBegin(GL_LINE_LOOP);
     glVertex2f(0.0f, 0.0f);
-    glVertex2f(12.0f, 0.0f);
-    glVertex2f(12.0f, 22.0f);
-    glVertex2f(0.0f, 22.0f);
+    glVertex2f(BoardWidth, 0.0f);
+    glVertex2f(BoardWidth, BoardHeight);
+    glVertex2f(0.0f, BoardHeight);
     glEnd();
 
+    // Рамка панели справа
     glColor3f(0.4f, 0.4f, 0.4f);
     glLineWidth(2.0f);
     glBegin(GL_LINE_LOOP);
-    glVertex2f(12.5f, 0.5f);
-    glVertex2f(17.5f, 0.5f);
-    glVertex2f(17.5f, 21.5f);
-    glVertex2f(12.5f, 21.5f);
+    glVertex2f(PanelX0, 0.5f);
+    glVertex2f(PanelX1, 0.5f);
+    glVertex2f(PanelX1, 21.5f);
+    glVertex2f(PanelX0, 21.5f);
     glEnd();
 
+    // Сетка поля
     glColor3f(0.3f, 0.3f, 0.3f);
     glLineWidth(1.0f);
     glBegin(GL_LINES);
-    for (int x = 1; x < 12; x++) {
+    for (int x = 1; x < static_cast<int>(BoardWidth); x++) {
         glVertex2f(static_cast<float>(x), 0.0f);
-        glVertex2f(static_cast<float>(x), 22.0f);
+        glVertex2f(static_cast<float>(x), BoardHeight);
     }
-    for (int y = 1; y < 22; y++) {
+    for (int y = 1; y < static_cast<int>(BoardHeight); y++) {
         glVertex2f(0.0f, static_cast<float>(y));
-        glVertex2f(12.0f, static_cast<float>(y));
+        glVertex2f(BoardWidth, static_cast<float>(y));
     }
     glEnd();
 
     const auto& gameBoard = board.getBoard();
     int animatedColor = board.getAnimatedLineColor();
 
-    for (int y = 0; y < 22; y++) {
+    for (int y = 0; y < static_cast<int>(BoardHeight); y++) {
         bool isAnimatingLine = false;
         if (board.isAnimating()) {
             bool lineComplete = true;
-            for (int x = 0; x < 12; x++) {
+            for (int x = 0; x < static_cast<int>(BoardWidth); x++) {
                 if (gameBoard[y][x] == 0) {
                     lineComplete = false;
                     break;
@@ -359,7 +366,7 @@ void Renderer::render(const GameBoard& board) {
             isAnimatingLine = lineComplete;
         }
 
-        for (int x = 0; x < 12; x++) {
+        for (int x = 0; x < static_cast<int>(BoardWidth); x++) {
             if (gameBoard[y][x] != 0) {
                 int color = isAnimatingLine ? animatedColor : gameBoard[y][x];
                 drawBlock(static_cast<float>(x), static_cast<float>(y), color);
@@ -367,14 +374,15 @@ void Renderer::render(const GameBoard& board) {
         }
     }
 
+    // Текущая фигура
     if (!board.isAnimating()) {
         const auto& currentPiece = board.getCurrentPiece();
         const auto& shape = currentPiece.getShape();
         int pieceX = currentPiece.getX();
         int pieceY = currentPiece.getY();
 
-        for (int y = 0; y < shape.size(); y++) {
-            for (int x = 0; x < shape[y].size(); x++) {
+        for (int y = 0; y < static_cast<int>(shape.size()); y++) {
+            for (int x = 0; x < static_cast<int>(shape[y].size()); x++) {
                 if (shape[y][x]) {
                     drawBlock(static_cast<float>(pieceX + x), static_cast<float>(pieceY + y), currentPiece.getColor());
                 }
@@ -382,9 +390,9 @@ void Renderer::render(const GameBoard& board) {
         }
     }
 
-    // === INFORMATION PANEL ===
+    // === ПАНЕЛЬ ИНФОРМАЦИИ ===
 
-    // Time section with border
+    // Время
     glColor3f(0.4f, 0.4f, 0.6f);
     glLineWidth(1.5f);
     glBegin(GL_LINE_LOOP);
@@ -398,7 +406,7 @@ void Renderer::render(const GameBoard& board) {
     std::string timeStr = board.getFormattedTime();
     drawText(14.5f, 2.0f, timeStr);
 
-    // Next piece section with border
+    // Следующая фигура
     glColor3f(0.4f, 0.4f, 0.6f);
     glLineWidth(1.5f);
     glBegin(GL_LINE_LOOP);
@@ -411,21 +419,21 @@ void Renderer::render(const GameBoard& board) {
     drawText(13.0f, 4.0f, "NEXT:");
     drawNextPiece(board.getNextPiece(), 15.0f, 6.0f);
 
-    // Score section with border
+    // Счет и уровень
     glColor3f(0.4f, 0.4f, 0.6f);
     glLineWidth(1.5f);
     glBegin(GL_LINE_LOOP);
     glVertex2f(13.0f, 8.5f);
     glVertex2f(17.0f, 8.5f);
-    glVertex2f(17.0f, 11.0f);
-    glVertex2f(13.0f, 11.0f);
+    glVertex2f(17.0f, 11.5f);
+    glVertex2f(13.0f, 11.5f);
     glEnd();
 
     drawText(13.0f, 9.0f, "SCORE:");
-    std::string scoreStr = std::to_string(board.getScore());
-    drawText(13.0f, 10.0f, scoreStr);
+    drawText(14.5f, 10.0f, std::to_string(board.getScore()));
+    drawText(13.0f, 10.8f, "LEVEL: " + std::to_string(board.getLevel()));
 
-    // Game status with border
+    // Статус игры
     glColor3f(0.6f, 0.4f, 0.4f);
     glLineWidth(1.5f);
     glBegin(GL_LINE_LOOP);
@@ -459,11 +467,14 @@ void Renderer::renderMenu(const MenuSystem& menu) {
     // Draw title
     drawText(5.0f, 3.0f, "MY TETRIS");
 
-    if (menu.shouldShowControls()) {
+    if (menu.getState() == MenuState::NAME_INPUT) {
+        drawNameInputScreen(menu);
+    }
+    else if (menu.shouldShowControls()) {
         drawControlsScreen();
     }
     else if (menu.shouldShowHighscores()) {
-        drawHighscoresScreen();
+        drawHighscoresScreen(menu);
     }
     else {
         // Draw menu items
@@ -535,14 +546,29 @@ void Renderer::drawControlsScreen() {
     drawText(3.0f, 13.0f, "PRESS ANY KEY TO RETURN");
 }
 
-void Renderer::drawHighscoresScreen() {
+void Renderer::drawHighscoresScreen(const MenuSystem& menu) {
     drawText(5.0f, 5.0f, "HIGHSCORES");
-    drawText(4.0f, 7.0f, "1. 10000");
-    drawText(4.0f, 8.0f, "2. 8000");
-    drawText(4.0f, 9.0f, "3. 6500");
-    drawText(4.0f, 10.0f, "4. 5000");
-    drawText(4.0f, 11.0f, "5. 3500");
+    float y = 7.0f;
+    int rank = 1;
+    for (const auto& row : menu.getHighscores()) {
+        std::string line = std::to_string(rank) + ". " + row.first + " - " + std::to_string(row.second);
+        drawText(3.5f, y, line);
+        y += 1.0f;
+        rank++;
+        if (rank > 10) break;
+    }
+    if (rank == 1) {
+        drawText(4.0f, 7.5f, "NO SCORES YET");
+    }
     drawText(3.0f, 13.0f, "PRESS ANY KEY TO RETURN");
+}
+
+void Renderer::drawNameInputScreen(const MenuSystem& menu) {
+    drawText(4.0f, 6.0f, "ENTER YOUR NAME:");
+    std::string input = menu.getNameInputBuffer();
+    if (input.empty()) input = "_";
+    drawText(4.0f, 8.0f, input);
+    drawText(3.0f, 10.0f, "ENTER - CONFIRM, ESC - CANCEL, BACKSPACE - DELETE");
 }
 
 void Renderer::processInput(GameBoard& board) {
@@ -587,8 +613,8 @@ void Renderer::processInput(GameBoard& board) {
     handleKey(GLFW_KEY_E, ePressed, [&]() { board.hardDrop(); });
     handleKey(GLFW_KEY_SPACE, spacePressed, [&]() { board.hardDrop(); });
 
-    // Pause
-    handleKey(GLFW_KEY_Q, qPressed, [&]() { board.togglePause(); });
+    // Pause: handled in main to keep state in sync
+    qPressed = (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS);
 
     // Exit
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {

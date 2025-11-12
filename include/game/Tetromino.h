@@ -14,7 +14,7 @@ private:
 
 public:
     Tetromino(TetrominoType tetrominoType = TetrominoType::I);
-        
+
     void rotate();
     void moveLeft();
     void moveRight();

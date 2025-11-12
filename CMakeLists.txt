@@ -32,6 +32,7 @@ set(SOURCES
     src/game/Tetromino.cpp
     src/audio/AudioManager.cpp
     src/menu/MenuSystem.cpp
+    src/db/Database.cpp
 )
 
 # Create executable
@@ -47,6 +48,7 @@ if(WIN32)
         opengl32.lib
         gdi32.lib
         winmm.lib
+        odbc32.lib
     )
     
     # Copy DLL

@@ -1,13 +1,12 @@
 #include "game/Tetromino.h"
 #include <random>
-#include <ctime>
 
-Tetromino::Tetromino(TetrominoType tetrominoType) : type(tetrominoType), x(3), y(0) {
+Tetromino::Tetromino(TetrominoType tetrominoType) : type(tetrominoType), x(4), y(0) {
     switch (type) {
     case TetrominoType::I:
         shape = { {1, 1, 1, 1} };
         color = 1;
-        x = 3; // Center I piece
+        // x уже установлен в списке инициализации
         break;
     case TetrominoType::O:
         shape = { {1, 1}, {1, 1} };
@@ -57,7 +56,9 @@ void Tetromino::moveRight() { x++; }
 void Tetromino::moveDown() { y++; }
 
 Tetromino Tetromino::getRandomTetromino() {
-    static std::mt19937 rng(static_cast<unsigned>(std::time(nullptr)));
+    // Используем random_device для лучшей случайности
+    static std::random_device rd;
+    static std::mt19937 rng(rd());
     std::uniform_int_distribution<int> dist(0, 6);
     return Tetromino(static_cast<TetrominoType>(dist(rng)));
 }
