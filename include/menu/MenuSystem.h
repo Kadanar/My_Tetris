@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <string>
 #include <vector>
 #include <functional>
@@ -27,8 +27,6 @@ private:
     std::vector<MenuItem> mainMenuItems;
     std::vector<MenuItem> pauseMenuItems;
     std::vector<MenuItem> gameOverMenuItems;
-    bool showControls;
-    bool showHighscores;
     int selectedMainMenuItem;
     int selectedPauseMenuItem;
     int selectedGameOverMenuItem;
@@ -37,31 +35,32 @@ private:
     std::string currentPlayerName;
     std::string nameInputBuffer;
     std::vector<std::pair<std::string, int>> highscores;
+    double lastKeyPressTime;
 
 public:
     MenuSystem();
 
     void initialize();
     void update();
+    void handleKeyInput(int key, double currentTime);
     void handleKeyInput(int key);
+    void handleCharInput(unsigned int codepoint, double currentTime);
     void handleCharInput(unsigned int codepoint);
     void selectMenuItem();
     void moveSelectionUp();
     void moveSelectionDown();
     void setState(MenuState newState);
 
-    // ����� ������
     void setGameOverInfo(int score, const std::string& time);
     void createGameOverMenu();
     void renderMenu() const;
 
-    // ������� ��� ����� ������
     MenuState getState() const { return currentState; }
     const std::vector<MenuItem>& getMainMenuItems() const { return mainMenuItems; }
     const std::vector<MenuItem>& getPauseMenuItems() const { return pauseMenuItems; }
     const std::vector<MenuItem>& getGameOverMenuItems() const { return gameOverMenuItems; }
-    bool shouldShowControls() const { return showControls; }
-    bool shouldShowHighscores() const { return showHighscores; }
+    bool shouldShowControls() const { return currentState == MenuState::CONTROLS; }
+    bool shouldShowHighscores() const { return currentState == MenuState::HIGHSCORES; }
     int getSelectedMainMenuItem() const { return selectedMainMenuItem; }
     int getSelectedPauseMenuItem() const { return selectedPauseMenuItem; }
     int getSelectedGameOverMenuItem() const { return selectedGameOverMenuItem; }

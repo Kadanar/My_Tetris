@@ -169,18 +169,15 @@ bool Database::ensureSchema() {
         "  CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE()"
         ");";
 
-    // Создаем базу данных если не существует
     if (!execDirect(hdbc, createDatabase, err)) {
         std::cout << "Note: Could not create database (might already exist): " << err << std::endl;
     }
 
-    // Используем нашу базу данных
     if (!execDirect(hdbc, useDatabase, err)) {
         lastErrorMessage = "Failed to use MyTetris database: " + err;
         return false;
     }
 
-    // Создаем таблицы
     bool success = execDirect(hdbc, createPlayers, err)
         && execDirect(hdbc, createScores, err)
         && execDirect(hdbc, createStats, err);
@@ -198,7 +195,6 @@ bool Database::ensureSchema() {
 std::optional<int> Database::ensurePlayer(const std::string& playerName) {
     if (!connected) return std::nullopt;
 
-    // Try get existing
     SQLHSTMT hstmt1 = SQL_NULL_HSTMT;
     if (SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt1) != SQL_SUCCESS) {
         return std::nullopt;
@@ -221,7 +217,6 @@ std::optional<int> Database::ensurePlayer(const std::string& playerName) {
     }
     SQLFreeHandle(SQL_HANDLE_STMT, hstmt1);
 
-    // Insert new
     SQLHSTMT hstmt2 = SQL_NULL_HSTMT;
     if (SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt2) != SQL_SUCCESS) {
         return std::nullopt;
@@ -237,7 +232,6 @@ std::optional<int> Database::ensurePlayer(const std::string& playerName) {
         return std::nullopt;
     }
 
-    // Read newly created id
     SQLHSTMT hstmt3 = SQL_NULL_HSTMT;
     if (SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt3) != SQL_SUCCESS) return std::nullopt;
 
@@ -293,17 +287,14 @@ std::vector<std::pair<std::string, int>> Database::fetchTopScores(int topN) {
         return rows;
     }
 
-    // Используем SQLBindCol для безопасного получения данных
-    char nameBuf[128] = { 0 }; // Инициализируем нулями
+    char nameBuf[128] = { 0 };
     SQLINTEGER scoreVal = 0;
     SQLLEN nameLen = 0, scoreLen = 0;
 
-    // Привязываем колонки
     SQLBindCol(hstmt_local, 1, SQL_C_CHAR, nameBuf, sizeof(nameBuf), &nameLen);
     SQLBindCol(hstmt_local, 2, SQL_C_SLONG, &scoreVal, 0, &scoreLen);
 
     while (SQLFetch(hstmt_local) == SQL_SUCCESS) {
-        // Гарантируем нуль-терминацию
         if (nameLen == SQL_NULL_DATA || nameLen <= 0) {
             nameBuf[0] = '\0';
         }
@@ -312,7 +303,6 @@ std::vector<std::pair<std::string, int>> Database::fetchTopScores(int topN) {
             nameBuf[safeLen] = '\0';
         }
 
-        // Если счет NULL, используем 0
         if (scoreLen == SQL_NULL_DATA) {
             scoreVal = 0;
         }
