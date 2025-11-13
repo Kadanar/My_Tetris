@@ -90,10 +90,11 @@ void Renderer::drawChar(float x, float y, char c) {
         glVertex2f(x + 0.05f, y + 0.25f); glVertex2f(x + 0.25f, y + 0.25f);
         break;
     case 'B':
-        glVertex2f(x, y); glVertex2f(x, y + 0.5f);
-        glVertex2f(x, y); glVertex2f(x + 0.2f, y);
-        glVertex2f(x, y + 0.25f); glVertex2f(x + 0.2f, y + 0.25f);
-        glVertex2f(x, y + 0.5f); glVertex2f(x + 0.2f, y + 0.5f);
+        glVertex2f(x, y); glVertex2f(x, y + 0.5f);        // левая вертикаль
+        glVertex2f(x + 0.2f, y); glVertex2f(x + 0.2f, y + 0.5f); // правая вертикаль
+        glVertex2f(x, y); glVertex2f(x + 0.2f, y);        // нижняя горизонталь
+        glVertex2f(x, y + 0.25f); glVertex2f(x + 0.2f, y + 0.25f); // средняя горизонталь
+        glVertex2f(x, y + 0.5f); glVertex2f(x + 0.2f, y + 0.5f); // верхняя горизонталь
         break;
     case 'C':
         glVertex2f(x + 0.3f, y); glVertex2f(x, y);
@@ -326,15 +327,15 @@ void Renderer::render(const GameBoard& board) {
     glVertex2f(0.0f, BoardHeight);
     glEnd();
 
-    // Рамка панели справа
-    glColor3f(0.4f, 0.4f, 0.4f);
+    // Рамка панели справаa (отказываюсь от нее, не красивая идея)
+    /*glColor3f(0.4f, 0.4f, 0.4f);
     glLineWidth(2.0f);
     glBegin(GL_LINE_LOOP);
     glVertex2f(PanelX0, 0.5f);
     glVertex2f(PanelX1, 0.5f);
     glVertex2f(PanelX1, 21.5f);
     glVertex2f(PanelX0, 21.5f);
-    glEnd();
+    glEnd();*/
 
     // Сетка поля
     glColor3f(0.3f, 0.3f, 0.3f);
@@ -374,7 +375,7 @@ void Renderer::render(const GameBoard& board) {
         }
     }
 
-    // Текущая фигура
+    // Текущая фигура (рендер появившейся фигуры)
     if (!board.isAnimating()) {
         const auto& currentPiece = board.getCurrentPiece();
         const auto& shape = currentPiece.getShape();
@@ -395,11 +396,11 @@ void Renderer::render(const GameBoard& board) {
     // Время
     glColor3f(0.4f, 0.4f, 0.6f);
     glLineWidth(1.5f);
-    glBegin(GL_LINE_LOOP);
+    glBegin(GL_LINE_LOOP);/* обводка вывода игрового времени 
     glVertex2f(13.0f, 0.8f);
     glVertex2f(17.0f, 0.8f);
     glVertex2f(17.0f, 2.5f);
-    glVertex2f(13.0f, 2.5f);
+    glVertex2f(13.0f, 2.5f);*/
     glEnd();
 
     drawText(13.0f, 1.0f, "TIME:");
@@ -409,11 +410,11 @@ void Renderer::render(const GameBoard& board) {
     // Следующая фигура
     glColor3f(0.4f, 0.4f, 0.6f);
     glLineWidth(1.5f);
-    glBegin(GL_LINE_LOOP);
+    glBegin(GL_LINE_LOOP);/* обводка указателя следующей фигуры для спавна
     glVertex2f(13.0f, 3.5f);
     glVertex2f(17.0f, 3.5f);
     glVertex2f(17.0f, 8.0f);
-    glVertex2f(13.0f, 8.0f);
+    glVertex2f(13.0f, 8.0f);*/
     glEnd();
 
     drawText(13.0f, 4.0f, "NEXT:");
@@ -422,11 +423,11 @@ void Renderer::render(const GameBoard& board) {
     // Счет и уровень
     glColor3f(0.4f, 0.4f, 0.6f);
     glLineWidth(1.5f);
-    glBegin(GL_LINE_LOOP);
+    glBegin(GL_LINE_LOOP);/* обводка счета 
     glVertex2f(13.0f, 8.5f);
     glVertex2f(17.0f, 8.5f);
     glVertex2f(17.0f, 11.5f);
-    glVertex2f(13.0f, 11.5f);
+    glVertex2f(13.0f, 11.5f);*/
     glEnd();
 
     drawText(13.0f, 9.0f, "SCORE:");
