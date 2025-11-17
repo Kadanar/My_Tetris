@@ -437,11 +437,11 @@ void Renderer::render(const GameBoard& board) {
     // Статус игры
     glColor3f(0.6f, 0.4f, 0.4f);
     glLineWidth(1.5f);
-    glBegin(GL_LINE_LOOP);
+    glBegin(GL_LINE_LOOP);/* 
     glVertex2f(13.0f, 18.5f);
     glVertex2f(17.0f, 18.5f);
     glVertex2f(17.0f, 20.5f);
-    glVertex2f(13.0f, 20.5f);
+    glVertex2f(13.0f, 20.5f);*/
     glEnd();
 
     if (board.isGamePaused()) {
