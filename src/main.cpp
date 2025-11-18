@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 #include "game/GameBoard.h"
 #include "graphics/Renderer.h"
 #include "menu/MenuSystem.h"
@@ -21,12 +21,15 @@ private:
 		const char* env = std::getenv("MY_TETRIS_CONN_STR");
 		if (env && *env) return std::string(env);
 
+		
 		return std::string(
 			"Driver={ODBC Driver 17 for SQL Server};"
-			"Server=STH01-043-IT-LT\\SQLEXPRESS02;"
+			"Server=STH01-043-IT-LT\\SQLEXPRESS02;"  
 			"Database=MyTetris;"
-			"Trusted_Connection=yes;"
-			"Encrypt=No;"
+			"Uid=tetris_remote;"
+			"Pwd=MySecure123!;"
+			"Encrypt=yes;"
+			"TrustServerCertificate=yes;"
 		);
 	}
 
@@ -35,31 +38,35 @@ public:
 
 	bool initialize() {
 		std::cout << "=== My Tetris Game ===" << std::endl;
+		std::cout << "Инициализация рендерера..." << std::endl;
 
 		if (!renderer.initialize()) {
-			std::cerr << "Failed to initialize renderer!" << std::endl;
+			std::cerr << "ОШИБКА: Не удалось инициализировать рендерер!" << std::endl;
 			return false;
 		}
 
 		std::string connStr = getConnectionString();
-		std::cout << "Connecting to database..." << std::endl;
+		std::cout << "Подключение к базе данных..." << std::endl;
+		std::cout << "Строка подключения: " << connStr << std::endl;
 
 		if (!db.connect(connStr)) {
-			std::cerr << "Database connect failed: " << db.getLastError() << std::endl;
-			std::cout << "Continuing without database support..." << std::endl;
+			std::cerr << "ОШИБКА подключения к базе: " << db.getLastError() << std::endl;
+			std::cout << "Продолжаем без поддержки базы данных..." << std::endl;
 		}
 		else {
-			std::cout << "Database connected! Ensuring schema..." << std::endl;
+			std::cout << "УСПЕХ: Подключение к базе установлено!" << std::endl;
+			std::cout << "Проверка схемы базы данных..." << std::endl;
+
 			if (!db.ensureSchema()) {
-				std::cerr << "Failed to ensure DB schema: " << db.getLastError() << std::endl;
-				std::cout << "Continuing with limited database functionality..." << std::endl;
+				std::cerr << "Предупреждение: Не удалось проверить схему БД: " << db.getLastError() << std::endl;
+				std::cout << "Продолжаем с ограниченной функциональностью БД..." << std::endl;
 			}
 			else {
-				std::cout << "Database schema ready!" << std::endl;
+				std::cout << "Схема базы данных готова!" << std::endl;
 			}
 		}
 
-		std::cout << "Game initialized successfully!" << std::endl;
+		std::cout << "Игра успешно инициализирована!" << std::endl;
 		return true;
 	}
 
@@ -75,13 +82,26 @@ public:
 
 			if (currentState == MenuState::IN_GAME) {
 				if (!gameInitialized) {
+					std::cout << "--- НАЧАЛО НОВОЙ ИГРЫ ---" << std::endl;
+
+					// Регистрируем игрока в базе если подключение есть
 					if (db.isConnected()) {
+						std::cout << "Регистрация игрока в базе данных..." << std::endl;
 						auto pid = db.ensurePlayer(menuSystem.getCurrentPlayerName());
-						currentPlayerId = pid.has_value() ? *pid : -1;
+						if (pid.has_value()) {
+							currentPlayerId = *pid;
+							std::cout << "Игрок зарегистрирован с ID: " << currentPlayerId << std::endl;
+						}
+						else {
+							std::cout << "Предупреждение: Не удалось зарегистрировать игрока" << std::endl;
+							currentPlayerId = -1;
+						}
 					}
+
 					board = GameBoard();
 					gameInitialized = true;
 					board.setPaused(false);
+					std::cout << "Игровое поле инициализировано" << std::endl;
 				}
 				handleGameplay(deltaTime);
 			}
@@ -123,14 +143,23 @@ private:
 		}
 
 		if (board.isGameOver()) {
-			std::cout << "Game Over! Final Score: " << board.getScore() << std::endl;
-			std::cout << "Time: " << board.getFormattedTime() << std::endl;
+			std::cout << "--- ИГРА ОКОНЧЕНА ---" << std::endl;
+			std::cout << "Финальный счет: " << board.getScore() << std::endl;
+			std::cout << "Время: " << board.getFormattedTime() << std::endl;
+			std::cout << "Уровень: " << board.getLevel() << std::endl;
+			std::cout << "Линии: " << board.getTotalClearedLines() << std::endl;
+
 			menuSystem.setGameOverInfo(board.getScore(), board.getFormattedTime());
 			menuSystem.setState(MenuState::GAME_OVER_MENU);
+
+			// Сохраняем результаты в базу данных
 			if (db.isConnected() && currentPlayerId > 0) {
+				std::cout << "Сохранение результатов в базу данных..." << std::endl;
 				int duration = static_cast<int>(board.getGameTime());
-				db.insertScore(currentPlayerId, board.getScore(), board.getTotalClearedLines(), board.getLevel(), duration);
-				db.insertGameStats(
+
+				bool scoreSaved = db.insertScore(currentPlayerId, board.getScore(),
+					board.getTotalClearedLines(), board.getLevel(), duration);
+				bool statsSaved = db.insertGameStats(
 					currentPlayerId,
 					board.getScore(),
 					duration,
@@ -138,7 +167,18 @@ private:
 					board.getPieceCounts(),
 					board.getTotalClearedLines()
 				);
+
+				if (scoreSaved && statsSaved) {
+					std::cout << "УСПЕХ: Результаты сохранены в базе данных!" << std::endl;
+				}
+				else {
+					std::cout << "ОШИБКА: Не удалось сохранить результаты в базу данных" << std::endl;
+				}
 			}
+			else {
+				std::cout << "Результаты не сохранены в БД (нет подключения или ID игрока)" << std::endl;
+			}
+
 			gameInitialized = false;
 		}
 
@@ -151,6 +191,7 @@ private:
 		processMenuInput();
 
 		if (menuSystem.shouldShowHighscores() && db.isConnected()) {
+			std::cout << "Загрузка таблицы рекордов из базы данных..." << std::endl;
 			menuSystem.setHighscores(db.fetchTopScores(10));
 		}
 
@@ -234,15 +275,22 @@ private:
 public:
 	void shutdown() {
 		renderer.shutdown();
-		std::cout << "Game shutdown complete." << std::endl;
+		std::cout << "Игра завершена." << std::endl;
 	}
 };
 
 int main() {
 	TetrisGame game;
 
+	std::cout << "==========================================" << std::endl;
+	std::cout << "ЗАПУСК TETRIS С ПОДКЛЮЧЕНИЕМ К БАЗЕ ДАННЫХ" << std::endl;
+	std::cout << "==========================================" << std::endl;
+
 	if (game.initialize()) {
 		game.run();
+	}
+	else {
+		std::cerr << "Не удалось инициализировать игру!" << std::endl;
 	}
 
 	game.shutdown();

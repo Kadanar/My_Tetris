@@ -133,7 +133,7 @@ bool Database::ensureSchema() {
     const char* createPlayers =
         "IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Players]') AND type = N'U') "
         "CREATE TABLE dbo.Players ("
-        "  Id INT IDENTITY(1,1) PRIMARY KEY,"
+        "  PlayerId INT IDENTITY(1,1) PRIMARY KEY,"
         "  Name NVARCHAR(100) NOT NULL UNIQUE,"
         "  CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE()"
         ");";
@@ -141,8 +141,8 @@ bool Database::ensureSchema() {
     const char* createScores =
         "IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Scores]') AND type = N'U') "
         "CREATE TABLE dbo.Scores ("
-        "  Id INT IDENTITY(1,1) PRIMARY KEY,"
-        "  PlayerId INT NOT NULL FOREIGN KEY REFERENCES dbo.Players(Id),"
+        "  GameId INT IDENTITY(1,1) PRIMARY KEY,"
+        "  PlayerId INT NOT NULL FOREIGN KEY REFERENCES dbo.Players(PlayerId),"
         "  Score INT NOT NULL,"
         "  TotalLines INT NOT NULL,"
         "  Level INT NOT NULL,"
@@ -153,8 +153,8 @@ bool Database::ensureSchema() {
     const char* createStats =
         "IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GameStats]') AND type = N'U') "
         "CREATE TABLE dbo.GameStats ("
-        "  Id INT IDENTITY(1,1) PRIMARY KEY,"
-        "  PlayerId INT NOT NULL FOREIGN KEY REFERENCES dbo.Players(Id),"
+        "  GameId INT IDENTITY(1,1) PRIMARY KEY,"
+        "  PlayerId INT NOT NULL FOREIGN KEY REFERENCES dbo.Players(PlayerId),"
         "  Score INT NOT NULL,"
         "  DurationSeconds INT NOT NULL,"
         "  Level INT NOT NULL,"
@@ -201,7 +201,7 @@ std::optional<int> Database::ensurePlayer(const std::string& playerName) {
     }
 
     std::ostringstream query1;
-    query1 << "SELECT Id FROM dbo.Players WHERE Name = N'" << escapeQuotes(playerName) << "'";
+    query1 << "SELECT PlayerId FROM dbo.Players WHERE Name = N'" << escapeQuotes(playerName) << "'";
 
     SQLRETURN rc1 = SQLExecDirectA(hstmt1, (SQLCHAR*)query1.str().c_str(), (SQLINTEGER)SQL_NTS);
     if (rc1 == SQL_SUCCESS || rc1 == SQL_SUCCESS_WITH_INFO) {
@@ -236,7 +236,7 @@ std::optional<int> Database::ensurePlayer(const std::string& playerName) {
     if (SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt3) != SQL_SUCCESS) return std::nullopt;
 
     std::ostringstream query3;
-    query3 << "SELECT Id FROM dbo.Players WHERE Name = N'" << escapeQuotes(playerName) << "'";
+    query3 << "SELECT PlayerId FROM dbo.Players WHERE Name = N'" << escapeQuotes(playerName) << "'";
 
     SQLRETURN rc3 = SQLExecDirectA(hstmt3, (SQLCHAR*)query3.str().c_str(), (SQLINTEGER)SQL_NTS);
     if (rc3 == SQL_SUCCESS || rc3 == SQL_SUCCESS_WITH_INFO) {
@@ -278,7 +278,7 @@ std::vector<std::pair<std::string, int>> Database::fetchTopScores(int topN) {
 
     std::ostringstream oss;
     oss << "SELECT TOP (" << topN << ") p.Name, s.Score "
-        << "FROM dbo.Scores s JOIN dbo.Players p ON p.Id = s.PlayerId "
+        << "FROM dbo.Scores s JOIN dbo.Players p ON p.PlayerId = s.PlayerId "
         << "ORDER BY s.Score DESC, s.CreatedAt ASC";
 
     SQLRETURN rc = SQLExecDirectA(hstmt_local, (SQLCHAR*)oss.str().c_str(), (SQLINTEGER)SQL_NTS);
