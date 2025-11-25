@@ -243,7 +243,6 @@ private:
     }
 
     void processMenuInput() {
-        // ... (остальной код без изменений)
         double currentTime = glfwGetTime();
 
         if ((menuSystem.getState() == MenuState::CONTROLS || menuSystem.getState() == MenuState::HIGHSCORES) &&
