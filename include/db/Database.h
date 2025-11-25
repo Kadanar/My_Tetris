@@ -28,7 +28,8 @@ public:
     ~Database();
 
     bool connect(const std::string& connectionString);
-    void disconnect();ûnected; }
+    void disconnect();
+    bool isConnected() const { return connected; }
     const std::string& getLastError() const { return lastErrorMessage; }
 
     bool ensureSchema();
