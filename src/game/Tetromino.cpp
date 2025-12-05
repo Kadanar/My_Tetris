@@ -4,31 +4,51 @@
 Tetromino::Tetromino(TetrominoType tetrominoType) : type(tetrominoType), x(4), y(0) {
     switch (type) {
     case TetrominoType::I:
-        shape = { {1, 1, 1, 1} };
+        shape = { 
+            {1, 1, 1, 1} 
+        };
         color = 1;
         break;
     case TetrominoType::O:
-        shape = { {1, 1}, {1, 1} };
+        shape = {
+            {1, 1}, 
+            {1, 1} 
+        };
         color = 2;
         break;
     case TetrominoType::T:
-        shape = { {0, 1, 0}, {1, 1, 1} };
+        shape = {
+            {0, 1, 0}, 
+            {1, 1, 1} 
+        };
         color = 3;
         break;
     case TetrominoType::S:
-        shape = { {0, 1, 1}, {1, 1, 0} };
+        shape = { 
+            {0, 1, 1},
+            {1, 1, 0}
+        };
         color = 4;
         break;
     case TetrominoType::Z:
-        shape = { {1, 1, 0}, {0, 1, 1} };
+        shape = { 
+            {1, 1, 0},
+            {0, 1, 1}
+        };
         color = 5;
         break;
     case TetrominoType::J:
-        shape = { {1, 0, 0}, {1, 1, 1} };
+        shape = { 
+            {1, 0, 0}, 
+            {1, 1, 1} 
+        };
         color = 6;
         break;
     case TetrominoType::L:
-        shape = { {0, 0, 1}, {1, 1, 1} };
+        shape = { 
+            {0, 0, 1}, 
+            {1, 1, 1} 
+        };
         color = 7;
         break;
     }

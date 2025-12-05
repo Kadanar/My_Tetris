@@ -268,14 +268,14 @@ bool Database::insertScore(int playerId, int score, int totalLines, int level, i
     SQLFreeHandle(SQL_HANDLE_STMT, hstmt_local);
     return ok;
 }
-
+// Тут зарыт SQL запрос на вывод рекордов 
 std::vector<std::pair<std::string, int>> Database::fetchTopScores(int topN) {
     std::vector<std::pair<std::string, int>> rows;
     if (!connected) return rows;
 
     SQLHSTMT hstmt_local = SQL_NULL_HSTMT;
     if (SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt_local) != SQL_SUCCESS) return rows;
-
+    // SQL запрос на вывод топ рекордов 
     std::ostringstream oss;
     oss << "SELECT TOP (" << topN << ") p.Name, s.Score "
         << "FROM dbo.Scores s JOIN dbo.Players p ON p.PlayerId = s.PlayerId "

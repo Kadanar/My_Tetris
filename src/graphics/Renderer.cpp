@@ -8,7 +8,7 @@ namespace {
     constexpr float PanelX0 = 12.5f;
     constexpr float PanelX1 = 17.5f;
 }
-
+//Рендер окна
 Renderer::Renderer() : window(nullptr), windowWidth(800), windowHeight(900),
 leftPressed(false), rightPressed(false), downPressed(false), upPressed(false),
 aPressed(false), dPressed(false), sPressed(false), wPressed(false),
@@ -78,6 +78,7 @@ void Renderer::drawBlock(float x, float y, int color) {
     glEnd();
 }
 
+// Рендер алфавита
 void Renderer::drawChar(float x, float y, char c) {
     glColor3f(1.0f, 1.0f, 1.0f);
     glLineWidth(2.0f);
@@ -227,7 +228,7 @@ void Renderer::drawChar(float x, float y, char c) {
         break;
     case '0': case '1': case '2': case '3': case '4':
     case '5': case '6': case '7': case '8': case '9':
-        // Simple digits
+
     {
         int digit = c - '0';
         if (digit == 0 || digit == 2 || digit == 3 || digit == 5 || digit == 6 || digit == 8 || digit == 9) {
@@ -264,7 +265,7 @@ void Renderer::drawChar(float x, float y, char c) {
         glVertex2f(x + 0.2f, y); glVertex2f(x, y + 0.5f);
         break;
     case ' ':
-        // Space - do nothing
+
         break;
     }
     glEnd();
@@ -277,7 +278,7 @@ void Renderer::drawText(float x, float y, const std::string& text) {
         currentX += 0.4f;
     }
 }
-
+// рендер новой фигуры
 void Renderer::drawNextPiece(const Tetromino& piece, float startX, float startY) {
     const auto& shape = piece.getShape();
     float blockSize = 0.8f;
@@ -305,7 +306,7 @@ void Renderer::drawNextPiece(const Tetromino& piece, float startX, float startY)
         }
     }
 }
-
+// рендер игрового поля и его элементов 
 void Renderer::render(const GameBoard& board) {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -453,7 +454,7 @@ void Renderer::render(const GameBoard& board) {
 
     glfwSwapBuffers(window);
 }
-
+//Рендер главного меню
 void Renderer::renderMenu(const MenuSystem& menu) {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -487,7 +488,7 @@ void Renderer::renderMenu(const MenuSystem& menu) {
 
     glfwSwapBuffers(window);
 }
-
+//Рендер меню при окончании игры
 void Renderer::renderGameOverMenu(const MenuSystem& menu) {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -514,7 +515,7 @@ void Renderer::renderGameOverMenu(const MenuSystem& menu) {
 
     glfwSwapBuffers(window);
 }
-
+//Рендер указателя выбранной вкладки в меню 
 void Renderer::drawMenuItem(const MenuItem& item) {
     if (item.isSelected) {
         glColor3f(1.0f, 1.0f, 0.0f); // Yellow for selected
@@ -535,7 +536,7 @@ void Renderer::drawMenuItem(const MenuItem& item) {
         glEnd();
     }
 }
-
+//Рендер клавишь управления в меню управления
 void Renderer::drawControlsScreen() {
     drawText(4.0f, 5.0f, "CONTROLS:");
     drawText(3.0f, 6.5f, "ARROWS/WASD - MOVE");
@@ -546,7 +547,7 @@ void Renderer::drawControlsScreen() {
     drawText(3.0f, 11.5f, "ESC - QUIT");
     drawText(3.0f, 13.0f, "PRESS ANY KEY TO RETURN");
 }
-
+//Рендер меню Рекордов
 void Renderer::drawHighscoresScreen(const MenuSystem& menu) {
     drawText(5.0f, 5.0f, "HIGHSCORES");
     float y = 7.0f;
@@ -561,15 +562,17 @@ void Renderer::drawHighscoresScreen(const MenuSystem& menu) {
     if (rank == 1) {
         drawText(4.0f, 7.5f, "NO SCORES YET");
     }
-    drawText(3.0f, 13.0f, "PRESS ANY KEY TO RETURN");
+    drawText(3.0f, 20.0f, "PRESS ANY KEY TO RETURN");
 }
-
+//Рендер ввода имени игрока для начала игры 
 void Renderer::drawNameInputScreen(const MenuSystem& menu) {
     drawText(4.0f, 6.0f, "ENTER YOUR NAME:");
     std::string input = menu.getNameInputBuffer();
     if (input.empty()) input = "_";
     drawText(4.0f, 8.0f, input);
-    drawText(3.0f, 10.0f, "ENTER - CONFIRM, ESC - CANCEL, BACKSPACE - DELETE");
+    drawText(3.0f, 10.0f, "ENTER - CONFIRM, ESC - CANCEL");
+    drawText(3.0f, 12.0f, "BACKSPACE - DELETE");
+        
 }
 
 void Renderer::processInput(GameBoard& board) {
@@ -614,10 +617,10 @@ void Renderer::processInput(GameBoard& board) {
     handleKey(GLFW_KEY_E, ePressed, [&]() { board.hardDrop(); });
     handleKey(GLFW_KEY_SPACE, spacePressed, [&]() { board.hardDrop(); });
 
-    // Pause: handled in main to keep state in sync
+
     qPressed = (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS);
 
-    // Exit
+
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
